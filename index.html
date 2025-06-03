@@ -219,15 +219,138 @@
 
     <!-- Incident Detail Modal -->
     <div id="incidentModal" class="modal hidden">
-        <div class="modal-content">
+        <div class="modal-content modal-content--large">
             <div class="modal-header">
                 <h3 class="modal-title">Detalhes do Incidente</h3>
                 <button class="modal-close" id="closeModal">&times;</button>
             </div>
-            <div class="modal-body" id="modalBody">
+            <div class="modal-tabs">
+                <button class="tab-button active" data-tab="details">Detalhes</button>
+                <button class="tab-button" data-tab="comments">Comentários</button>
+                <button class="tab-button" data-tab="communications">Comunicações</button>
+            </div>
+            <div class="modal-body">
+                <div class="tab-content active" id="tab-details">
+                    <div id="modalBody"></div>
+                </div>
+                <div class="tab-content" id="tab-comments">
+                    <div class="comments-section">
+                        <div class="comment-form">
+                            <div class="form-group">
+                                <label for="commentType" class="form-label">Tipo de Comentário:</label>
+                                <select id="commentType" class="form-control">
+                                    <option value="interno">Interno</option>
+                                    <option value="fornecedor">Para Fornecedor</option>
+                                    <option value="tecnico">Técnico</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="commentText" class="form-label">Comentário:</label>
+                                <textarea id="commentText" class="form-control" rows="4" placeholder="Digite seu comentário..."></textarea>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="btn btn--secondary" id="saveComment">Salvar Comentário</button>
+                                <button class="btn btn--primary" id="sendToSupplier">Enviar para Fornecedor</button>
+                            </div>
+                        </div>
+                        <div class="comments-history">
+                            <h4>Histórico de Comentários</h4>
+                            <div id="commentsList" class="comments-list"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-communications">
+                    <div class="communications-section">
+                        <div class="communication-actions">
+                            <button class="btn btn--primary" id="newCommunication">📤 Nova Comunicação</button>
+                        </div>
+                        <div class="communications-history">
+                            <h4>Histórico de Comunicações</h4>
+                            <div id="communicationsList" class="communications-list"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Supplier Communication Modal -->
+    <div id="supplierModal" class="modal hidden">
+        <div class="modal-content modal-content--large">
+            <div class="modal-header">
+                <h3 class="modal-title">💬 Comunicação com Fornecedor</h3>
+                <button class="modal-close" id="closeSupplierModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="supplier-form">
+                    <div class="supplier-info">
+                        <div class="supplier-details">
+                            <h5>Fornecedor:</h5>
+                            <span id="supplierName">-</span>
+                        </div>
+                        <div class="incident-ref">
+                            <h5>Incidente:</h5>
+                            <span id="incidentRef">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="communicationTemplate" class="form-label">Template de Mensagem:</label>
+                        <select id="communicationTemplate" class="form-control">
+                            <option value="">Selecione um template...</option>
+                            <option value="urgencia">Favor verificar funcionamento do equipamento com urgência</option>
+                            <option value="manutencao">Solicitamos manutenção preventiva do equipamento</option>
+                            <option value="falhas">Equipamento apresentando falhas intermitentes</option>
+                            <option value="substituicao">Necessária substituição de componente defeituoso</option>
+                            <option value="atualizacao">Favor atualizar software/firmware do equipamento</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="communicationSubject" class="form-label">Assunto:</label>
+                        <input type="text" id="communicationSubject" class="form-control" placeholder="Assunto da comunicação">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="communicationMessage" class="form-label">Mensagem:</label>
+                        <textarea id="communicationMessage" class="form-control" rows="6" placeholder="Digite a mensagem para o fornecedor..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group form-group--half">
+                            <label for="communicationPriority" class="form-label">Prioridade:</label>
+                            <select id="communicationPriority" class="form-control">
+                                <option value="baixa">Baixa</option>
+                                <option value="media" selected>Média</option>
+                                <option value="alta">Alta</option>
+                                <option value="critica">Crítica</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-group--half">
+                            <label for="communicationDeadline" class="form-label">Prazo:</label>
+                            <input type="datetime-local" id="communicationDeadline" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="includeAttachments">
+                            <span class="checkmark"></span>
+                            Incluir anexos técnicos
+                        </label>
+                    </div>
+
+                    <div class="supplier-actions">
+                        <button class="btn btn--secondary" id="cancelCommunication">Cancelar</button>
+                        <button class="btn btn--primary" id="sendCommunication">📤 Enviar para Fornecedor</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <script src="app.js"></script>
 </body>

@@ -12,19 +12,22 @@ class IBSApp {
             status: '',
             period: 90
         };
+        this.currentIncidentId = null;
+        this.comments = {};
+        this.communications = {};
 
-        // Data from JSON
+        // Data from JSON with suppliers
         this.equipamentos = [
-            {"nome": "Guia TV", "icon": "📺", "cor": "#4F46E5"},
-            {"nome": "ATM Saque", "icon": "🏧", "cor": "#059669"},
-            {"nome": "ATM Depósito", "icon": "💳", "cor": "#DC2626"},
-            {"nome": "Notebook", "icon": "💻", "cor": "#7C3AED"},
-            {"nome": "Link/Conectividade", "icon": "🌐", "cor": "#EA580C"},
-            {"nome": "WiFi", "icon": "📶", "cor": "#0891B2"},
-            {"nome": "Equipamentos de Segurança", "icon": "🔒", "cor": "#BE123C"},
-            {"nome": "Impressoras", "icon": "🖨️", "cor": "#65A30D"},
-            {"nome": "Tablets", "icon": "📱", "cor": "#C026D3"},
-            {"nome": "Ar Condicionado", "icon": "❄️", "cor": "#0369A1"}
+            {"nome": "Guia TV", "icon": "📺", "cor": "#4F46E5", "fornecedor": "TechDisplay Ltda"},
+            {"nome": "ATM Saque", "icon": "🏧", "cor": "#059669", "fornecedor": "NCR Brasil"},
+            {"nome": "ATM Depósito", "icon": "💳", "cor": "#DC2626", "fornecedor": "Diebold Nixdorf"},
+            {"nome": "Notebook", "icon": "💻", "cor": "#7C3AED", "fornecedor": "Dell Technologies"},
+            {"nome": "Link/Conectividade", "icon": "🌐", "cor": "#EA580C", "fornecedor": "Vivo Empresas"},
+            {"nome": "WiFi", "icon": "📶", "cor": "#0891B2", "fornecedor": "Cisco Systems"},
+            {"nome": "Equipamentos de Segurança", "icon": "🔒", "cor": "#BE123C", "fornecedor": "Intelbras Security"},
+            {"nome": "Impressoras", "icon": "🖨️", "cor": "#65A30D", "fornecedor": "HP Brasil"},
+            {"nome": "Tablets", "icon": "📱", "cor": "#C026D3", "fornecedor": "Samsung Electronics"},
+            {"nome": "Ar Condicionado", "icon": "❄️", "cor": "#0369A1", "fornecedor": "Carrier Corporation"}
         ];
 
         this.severidades = [
@@ -59,11 +62,26 @@ class IBSApp {
             "Bruno Martins - Técnico Audiovisual", "Camila Rocha - Especialista Climatização"
         ];
 
+        this.templatesMensagens = [
+            "Favor verificar funcionamento do equipamento com urgência",
+            "Solicitamos manutenção preventiva do equipamento",
+            "Equipamento apresentando falhas intermitentes",
+            "Necessária substituição de componente defeituoso",
+            "Favor atualizar software/firmware do equipamento"
+        ];
+
+        this.usuarios = [
+            "Carlos Mendes - Analista NOC", "Fernanda Silva - Supervisora Técnica", 
+            "Roberto Lima - Coordenador Operacional", "Ana Costa - Analista de Suporte"
+        ];
+
         this.init();
     }
 
     init() {
         this.generateMockData();
+        this.generateMockComments();
+        this.generateMockCommunications();
         this.setupEventListeners();
         this.setupFilters();
         this.applyFilters();
@@ -117,6 +135,7 @@ class IBSApp {
                 equipment: equipment.nome,
                 equipmentIcon: equipment.icon,
                 equipmentColor: equipment.cor,
+                supplier: equipment.fornecedor,
                 agency: agency,
                 severity: severity.nome,
                 severityColor: severity.cor,
@@ -135,6 +154,79 @@ class IBSApp {
         }
         
         this.incidents = incidents.sort((a, b) => b.startDate - a.startDate);
+    }
+
+    generateMockComments() {
+        const usuarios = this.usuarios;
+        const comentariosTipo = ['interno', 'fornecedor', 'tecnico'];
+        const comentariosExemplo = [
+            'Equipamento apresentando problemas intermitentes. Solicitando verificação.',
+            'Realizei reinicialização do sistema. Monitorando comportamento.',
+            'Problema identificado no módulo principal. Necessária intervenção.',
+            'Cliente reportou melhoria após última atualização.',
+            'Agendamento de manutenção preventiva necessário.',
+            'Sistema funcionando normalmente após intervenção.',
+            'Detectado problema de conectividade. Investigando causa raiz.'
+        ];
+
+        // Generate comments for some incidents
+        for (let i = 0; i < 50; i++) {
+            const incident = this.incidents[Math.floor(Math.random() * Math.min(this.incidents.length, 30))];
+            const incidentId = incident.id;
+            
+            if (!this.comments[incidentId]) {
+                this.comments[incidentId] = [];
+            }
+
+            const numComments = Math.floor(Math.random() * 4) + 1;
+            for (let j = 0; j < numComments; j++) {
+                const commentDate = new Date(incident.startDate.getTime() + (j * 2 * 60 * 60 * 1000));
+                const comment = {
+                    id: `COMM-${Date.now()}-${Math.random()}`,
+                    type: comentariosTipo[Math.floor(Math.random() * comentariosTipo.length)],
+                    text: comentariosExemplo[Math.floor(Math.random() * comentariosExemplo.length)],
+                    author: usuarios[Math.floor(Math.random() * usuarios.length)],
+                    timestamp: commentDate
+                };
+                this.comments[incidentId].push(comment);
+            }
+        }
+    }
+
+    generateMockCommunications() {
+        const statusTypes = ['enviado', 'lido', 'respondido'];
+        const subjects = [
+            'Verificação urgente de equipamento',
+            'Solicitação de manutenção preventiva',
+            'Relatório de falha crítica',
+            'Atualização de firmware necessária',
+            'Substituição de componente'
+        ];
+
+        // Generate communications for some incidents
+        for (let i = 0; i < 30; i++) {
+            const incident = this.incidents[Math.floor(Math.random() * Math.min(this.incidents.length, 20))];
+            const incidentId = incident.id;
+            
+            if (!this.communications[incidentId]) {
+                this.communications[incidentId] = [];
+            }
+
+            const numCommunications = Math.floor(Math.random() * 3) + 1;
+            for (let j = 0; j < numCommunications; j++) {
+                const commDate = new Date(incident.startDate.getTime() + (j * 4 * 60 * 60 * 1000));
+                const communication = {
+                    id: `COMM-${Date.now()}-${Math.random()}`,
+                    subject: subjects[Math.floor(Math.random() * subjects.length)],
+                    message: `Comunicação relacionada ao incidente ${incidentId}. Favor verificar e providenciar solução conforme procedimentos estabelecidos.`,
+                    priority: ['baixa', 'media', 'alta'][Math.floor(Math.random() * 3)],
+                    status: statusTypes[Math.floor(Math.random() * statusTypes.length)],
+                    timestamp: commDate,
+                    supplier: incident.supplier
+                };
+                this.communications[incidentId].push(communication);
+            }
+        }
     }
 
     generateIncidentDescription(equipment, severity) {
@@ -245,9 +337,20 @@ class IBSApp {
             }
         });
 
-        // Modal
+        // Modal tabs
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                this.switchTab(e.target.dataset.tab);
+            });
+        });
+
+        // Modals
         document.getElementById('closeModal').addEventListener('click', () => {
             document.getElementById('incidentModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeSupplierModal').addEventListener('click', () => {
+            document.getElementById('supplierModal').classList.add('hidden');
         });
 
         // Click outside modal to close
@@ -255,6 +358,39 @@ class IBSApp {
             if (e.target.id === 'incidentModal') {
                 document.getElementById('incidentModal').classList.add('hidden');
             }
+        });
+
+        document.getElementById('supplierModal').addEventListener('click', (e) => {
+            if (e.target.id === 'supplierModal') {
+                document.getElementById('supplierModal').classList.add('hidden');
+            }
+        });
+
+        // Comments functionality
+        document.getElementById('saveComment').addEventListener('click', () => {
+            this.saveComment();
+        });
+
+        document.getElementById('sendToSupplier').addEventListener('click', () => {
+            this.sendCommentToSupplier();
+        });
+
+        // Communications functionality
+        document.getElementById('newCommunication').addEventListener('click', () => {
+            this.openSupplierModal();
+        });
+
+        // Supplier modal functionality
+        document.getElementById('communicationTemplate').addEventListener('change', (e) => {
+            this.fillTemplate(e.target.value);
+        });
+
+        document.getElementById('cancelCommunication').addEventListener('click', () => {
+            document.getElementById('supplierModal').classList.add('hidden');
+        });
+
+        document.getElementById('sendCommunication').addEventListener('click', () => {
+            this.sendCommunication();
         });
 
         // Export
@@ -305,6 +441,23 @@ class IBSApp {
         } else {
             document.getElementById('dashboard-section').style.display = 'block';
             document.getElementById('incidents-section').style.display = 'none';
+        }
+    }
+
+    switchTab(tab) {
+        // Update tab buttons
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+        // Show/hide tab content
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+
+        // Load content based on tab
+        if (tab === 'comments') {
+            this.loadComments();
+        } else if (tab === 'communications') {
+            this.loadCommunications();
         }
     }
 
@@ -664,11 +817,22 @@ class IBSApp {
                 <td>${this.getElapsedTime(incident)}</td>
                 <td>${incident.responsible}</td>
                 <td>
-                    <button class="btn-view" onclick="window.app.showIncidentDetail('${incident.id}')">
+                    <button class="btn-view" data-incident-id="${incident.id}">
                         Ver Detalhes
+                    </button>
+                    <button class="btn-communicate" data-incident-id="${incident.id}">
+                        💬 Comunicar Fornecedor
                     </button>
                 </td>
             `;
+            
+            // Add event listeners to the buttons
+            const viewBtn = row.querySelector('.btn-view');
+            const commBtn = row.querySelector('.btn-communicate');
+            
+            viewBtn.addEventListener('click', () => this.showIncidentDetail(incident.id));
+            commBtn.addEventListener('click', () => this.openSupplierCommunication(incident.id));
+            
             tableBody.appendChild(row);
         });
 
@@ -744,6 +908,8 @@ class IBSApp {
         const incident = this.incidents.find(inc => inc.id === incidentId);
         if (!incident) return;
 
+        this.currentIncidentId = incidentId;
+
         const statusClass = incident.status.toLowerCase().replace(/\s+/g, '-');
         const severityClass = incident.severity.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
@@ -756,6 +922,10 @@ class IBSApp {
             <div class="detail-row">
                 <span class="detail-label">Equipamento:</span>
                 <span class="detail-value">${incident.equipmentIcon} ${incident.equipment}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Fornecedor:</span>
+                <span class="detail-value">${incident.supplier}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Agência:</span>
@@ -806,7 +976,280 @@ class IBSApp {
             </div>
         `;
 
+        // Reset to details tab
+        this.switchTab('details');
         document.getElementById('incidentModal').classList.remove('hidden');
+    }
+
+    openSupplierCommunication(incidentId) {
+        const incident = this.incidents.find(inc => inc.id === incidentId);
+        if (!incident) return;
+
+        this.currentIncidentId = incidentId;
+        
+        // Fill supplier modal data
+        document.getElementById('supplierName').textContent = incident.supplier;
+        document.getElementById('incidentRef').textContent = `${incident.id} - ${incident.equipment}`;
+        
+        // Clear form
+        document.getElementById('communicationTemplate').value = '';
+        document.getElementById('communicationSubject').value = '';
+        document.getElementById('communicationMessage').value = '';
+        document.getElementById('communicationPriority').value = 'media';
+        document.getElementById('includeAttachments').checked = false;
+        
+        // Set default deadline (24 hours from now)
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('communicationDeadline').value = tomorrow.toISOString().slice(0, 16);
+
+        document.getElementById('supplierModal').classList.remove('hidden');
+    }
+
+    openSupplierModal() {
+        if (!this.currentIncidentId) return;
+        this.openSupplierCommunication(this.currentIncidentId);
+    }
+
+    fillTemplate(templateKey) {
+        const templates = {
+            'urgencia': {
+                subject: 'Verificação Urgente Necessária',
+                message: 'Favor verificar funcionamento do equipamento com urgência devido à criticidade do problema reportado.'
+            },
+            'manutencao': {
+                subject: 'Solicitação de Manutenção Preventiva',
+                message: 'Solicitamos manutenção preventiva do equipamento conforme cronograma estabelecido.'
+            },
+            'falhas': {
+                subject: 'Relatório de Falhas Intermitentes',
+                message: 'Equipamento apresentando falhas intermitentes. Favor investigar e providenciar solução.'
+            },
+            'substituicao': {
+                subject: 'Substituição de Componente',
+                message: 'Necessária substituição de componente defeituoso identificado durante análise técnica.'
+            },
+            'atualizacao': {
+                subject: 'Atualização de Software/Firmware',
+                message: 'Favor atualizar software/firmware do equipamento para versão mais recente.'
+            }
+        };
+
+        const template = templates[templateKey];
+        if (template) {
+            document.getElementById('communicationSubject').value = template.subject;
+            document.getElementById('communicationMessage').value = template.message;
+        }
+    }
+
+    loadComments() {
+        const commentsList = document.getElementById('commentsList');
+        const comments = this.comments[this.currentIncidentId] || [];
+
+        if (comments.length === 0) {
+            commentsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <div class="empty-state-message">Nenhum comentário encontrado</div>
+                </div>
+            `;
+            return;
+        }
+
+        commentsList.innerHTML = comments.map(comment => `
+            <div class="comment-item">
+                <div class="comment-header">
+                    <div class="comment-meta">
+                        <strong>${comment.author}</strong> • ${comment.timestamp.toLocaleDateString('pt-BR')} ${comment.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <span class="comment-type comment-type--${comment.type}">
+                        ${comment.type === 'interno' ? 'Interno' : comment.type === 'fornecedor' ? 'Para Fornecedor' : 'Técnico'}
+                    </span>
+                </div>
+                <div class="comment-text">${comment.text}</div>
+            </div>
+        `).join('');
+    }
+
+    loadCommunications() {
+        const communicationsList = document.getElementById('communicationsList');
+        const communications = this.communications[this.currentIncidentId] || [];
+
+        if (communications.length === 0) {
+            communicationsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📤</div>
+                    <div class="empty-state-message">Nenhuma comunicação encontrada</div>
+                </div>
+            `;
+            return;
+        }
+
+        communicationsList.innerHTML = communications.map(comm => `
+            <div class="communication-item">
+                <div class="communication-header">
+                    <h5 class="communication-title">${comm.subject}</h5>
+                    <span class="communication-status communication-status--${comm.status}">
+                        ${comm.status === 'enviado' ? 'Enviado' : comm.status === 'lido' ? 'Lido' : 'Respondido'}
+                    </span>
+                </div>
+                <div class="communication-meta">
+                    <strong>Para:</strong> ${comm.supplier} • 
+                    <strong>Prioridade:</strong> ${comm.priority.charAt(0).toUpperCase() + comm.priority.slice(1)} • 
+                    ${comm.timestamp.toLocaleDateString('pt-BR')} ${comm.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <div class="communication-text">${comm.message}</div>
+            </div>
+        `).join('');
+    }
+
+    saveComment() {
+        const type = document.getElementById('commentType').value;
+        const text = document.getElementById('commentText').value.trim();
+
+        if (!text) {
+            this.showToast('Por favor, digite um comentário', 'warning');
+            return;
+        }
+
+        const comment = {
+            id: `COMM-${Date.now()}-${Math.random()}`,
+            type: type,
+            text: text,
+            author: this.usuarios[0], // Assuming current user is first in list
+            timestamp: new Date()
+        };
+
+        if (!this.comments[this.currentIncidentId]) {
+            this.comments[this.currentIncidentId] = [];
+        }
+
+        this.comments[this.currentIncidentId].push(comment);
+        
+        // Clear form
+        document.getElementById('commentText').value = '';
+        
+        // Reload comments
+        this.loadComments();
+        
+        this.showToast('Comentário salvo com sucesso!', 'success');
+    }
+
+    sendCommentToSupplier() {
+        const type = document.getElementById('commentType').value;
+        const text = document.getElementById('commentText').value.trim();
+
+        if (!text) {
+            this.showToast('Por favor, digite um comentário', 'warning');
+            return;
+        }
+
+        // Save as comment first
+        this.saveComment();
+
+        // Then open supplier modal with the comment as base
+        document.getElementById('communicationSubject').value = 'Comentário sobre Incidente';
+        document.getElementById('communicationMessage').value = text;
+        document.getElementById('communicationPriority').value = type === 'interno' ? 'baixa' : 'media';
+        
+        document.getElementById('incidentModal').classList.add('hidden');
+        this.openSupplierModal();
+    }
+
+    sendCommunication() {
+        const subject = document.getElementById('communicationSubject').value.trim();
+        const message = document.getElementById('communicationMessage').value.trim();
+        const priority = document.getElementById('communicationPriority').value;
+        const deadline = document.getElementById('communicationDeadline').value;
+        const includeAttachments = document.getElementById('includeAttachments').checked;
+
+        if (!subject || !message) {
+            this.showToast('Por favor, preencha o assunto e a mensagem', 'warning');
+            return;
+        }
+
+        const incident = this.incidents.find(inc => inc.id === this.currentIncidentId);
+        if (!incident) return;
+
+        // Simulate sending with loading state
+        const sendButton = document.getElementById('sendCommunication');
+        sendButton.classList.add('loading');
+        sendButton.textContent = 'Enviando...';
+
+        setTimeout(() => {
+            const communication = {
+                id: `COMM-${Date.now()}-${Math.random()}`,
+                subject: subject,
+                message: message,
+                priority: priority,
+                status: 'enviado',
+                timestamp: new Date(),
+                supplier: incident.supplier,
+                deadline: deadline ? new Date(deadline) : null,
+                hasAttachments: includeAttachments
+            };
+
+            if (!this.communications[this.currentIncidentId]) {
+                this.communications[this.currentIncidentId] = [];
+            }
+
+            this.communications[this.currentIncidentId].push(communication);
+
+            // Reset button
+            sendButton.classList.remove('loading');
+            sendButton.textContent = '📤 Enviar para Fornecedor';
+
+            // Close modal and show success
+            document.getElementById('supplierModal').classList.add('hidden');
+            this.showToast('Comunicação enviada com sucesso para o fornecedor!', 'success');
+
+            // If incident modal is open, refresh communications tab
+            if (!document.getElementById('incidentModal').classList.contains('hidden')) {
+                this.loadCommunications();
+            }
+        }, 2000);
+    }
+
+    showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <span class="toast-icon">${icons[type]}</span>
+                <span class="toast-message">${message}</span>
+                <button class="toast-close">&times;</button>
+            </div>
+        `;
+
+        // Add close functionality
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            this.removeToast(toast);
+        });
+
+        toastContainer.appendChild(toast);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            this.removeToast(toast);
+        }, 5000);
+    }
+
+    removeToast(toast) {
+        toast.classList.add('removing');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
     }
 
     exportData() {
@@ -823,10 +1266,11 @@ class IBSApp {
     }
 
     generateCSV() {
-        const headers = ['ID', 'Equipamento', 'Agência', 'Severidade', 'Status', 'Data Início', 'Data Resolução', 'Responsável', 'Descrição'];
+        const headers = ['ID', 'Equipamento', 'Fornecedor', 'Agência', 'Severidade', 'Status', 'Data Início', 'Data Resolução', 'Responsável', 'Descrição'];
         const rows = this.filteredIncidents.map(incident => [
             incident.id,
             incident.equipment,
+            incident.supplier,
             incident.agency,
             incident.severity,
             incident.status,
